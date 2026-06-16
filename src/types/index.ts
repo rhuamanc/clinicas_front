@@ -1,4 +1,4 @@
-// ─── Auth ─────────────────────────────────────────────────
+// â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export interface LoginRequest {
   nombre: string
   password: string
@@ -10,6 +10,7 @@ export interface LoginResponse {
   nombre: string
   rol: string
   idZona: number
+  recursos: string[]
 }
 
 export interface AuthState {
@@ -17,10 +18,20 @@ export interface AuthState {
   nombre: string | null
   rol: string | null
   idZona: number | null
+  recursos: string[]
   isAuthenticated: boolean
 }
 
-// ─── Producto ─────────────────────────────────────────────
+// â”€â”€â”€ Rol â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export interface Rol {
+  idRol?: number
+  nombre: string
+  descripcion?: string
+  estado?: number
+  recursos?: string[]
+}
+
+// â”€â”€â”€ Producto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export interface Producto {
   idProducto: number
   nombreProducto: string
@@ -259,6 +270,7 @@ export interface UsuarioAdmin {
   nombre: string
   password?: string
   rol: string
+  idRol?: number
   estado?: number
   idZona: number
   idCliente?: number
@@ -329,7 +341,7 @@ export interface DigemidRow {
   laboratorio?: string
 }
 
-// ─── Venta ────────────────────────────────────────────────
+// â”€â”€â”€ Venta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export interface DetalleVentaDTO {
   idProducto: number
   nombreProducto: string
@@ -351,3 +363,4 @@ export interface VentaDTO {
   estado?: number
   detalleVentas: DetalleVentaDTO[]
 }
+

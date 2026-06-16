@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from '@/router/ProtectedRoute'
+import RequireResource from '@/router/RequireResource'
 import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
 import VentasPage from '@/pages/VentasPage'
@@ -8,6 +9,7 @@ import ProductosPage from '@/pages/ProductosPage'
 import LaboratoriosPage from '@/pages/LaboratoriosPage'
 import ProveedoresPage from '@/pages/ProveedoresPage'
 import UsuariosPage from '@/pages/UsuariosPage'
+import RolesPage from '@/pages/RolesPage'
 import ReportesPage from '@/pages/ReportesPage'
 import CargosPage from '@/pages/CargosPage'
 import IncentivosPage from '@/pages/IncentivosPage'
@@ -28,20 +30,21 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/ventas" element={<VentasPage />} />
-            <Route path="/compras" element={<ComprasPage />} />
-            <Route path="/productos" element={<ProductosPage />} />
-            <Route path="/laboratorios" element={<LaboratoriosPage />} />
-            <Route path="/proveedores" element={<ProveedoresPage />} />
-            <Route path="/usuarios" element={<UsuariosPage />} />
-            <Route path="/reportes" element={<ReportesPage />} />
-            <Route path="/cargos" element={<CargosPage />} />
-            <Route path="/incentivos" element={<IncentivosPage />} />
-            <Route path="/salidas" element={<SalidasPage />} />
-            <Route path="/pedidos" element={<PedidosPage />} />
-            <Route path="/genericos" element={<GenericosPage />} />
-            <Route path="/digemid" element={<DigemidPage />} />
-            <Route path="/caja" element={<CajaPage />} />
+            <Route path="/ventas" element={<RequireResource resourceKey="ventas"><VentasPage /></RequireResource>} />
+            <Route path="/compras" element={<RequireResource resourceKey="compras"><ComprasPage /></RequireResource>} />
+            <Route path="/productos" element={<RequireResource resourceKey="productos"><ProductosPage /></RequireResource>} />
+            <Route path="/laboratorios" element={<RequireResource resourceKey="laboratorios"><LaboratoriosPage /></RequireResource>} />
+            <Route path="/proveedores" element={<RequireResource resourceKey="proveedores"><ProveedoresPage /></RequireResource>} />
+            <Route path="/usuarios" element={<RequireResource resourceKey="usuarios"><UsuariosPage /></RequireResource>} />
+            <Route path="/roles" element={<RequireResource resourceKey="roles"><RolesPage /></RequireResource>} />
+            <Route path="/reportes" element={<RequireResource resourceKey="reportes"><ReportesPage /></RequireResource>} />
+            <Route path="/cargos" element={<RequireResource resourceKey="cargos"><CargosPage /></RequireResource>} />
+            <Route path="/incentivos" element={<RequireResource resourceKey="incentivos"><IncentivosPage /></RequireResource>} />
+            <Route path="/salidas" element={<RequireResource resourceKey="salidas"><SalidasPage /></RequireResource>} />
+            <Route path="/pedidos" element={<RequireResource resourceKey="pedidos"><PedidosPage /></RequireResource>} />
+            <Route path="/genericos" element={<RequireResource resourceKey="genericos"><GenericosPage /></RequireResource>} />
+            <Route path="/digemid" element={<RequireResource resourceKey="digemid_codigos"><DigemidPage /></RequireResource>} />
+            <Route path="/caja" element={<RequireResource resourceKey="caja"><CajaPage /></RequireResource>} />
           </Route>
         </Route>
 

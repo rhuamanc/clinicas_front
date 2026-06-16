@@ -12,6 +12,7 @@ const initialState: AuthState = {
   nombre: null,
   rol: null,
   idZona: null,
+  recursos: [],
   isAuthenticated: false,
 }
 
@@ -25,6 +26,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           nombre: payload.nombre,
           rol: payload.rol,
           idZona: payload.idZona,
+          recursos: payload.recursos ?? [],
           isAuthenticated: true,
         }),
       logout: () => set(initialState),

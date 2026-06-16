@@ -1,26 +1,28 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { hasResource } from '@/security/resourceCatalog'
 
 export interface SidebarMenuItem {
   label: string
   to?: string
   children?: SidebarMenuItem[]
   external?: boolean
+  resourceKey?: string
 }
 
 const menu: SidebarMenuItem[] = [
   {
     label: 'Mantenimientos',
     children: [
-      { label: 'Laboratorios', to: '/laboratorios' },
-      { label: 'Genericos', to: '/genericos' },
-      { label: 'Productos', to: '/productos' },
-      { label: 'Proveedores', to: '/proveedores' },
-      { label: 'Ventas', to: '/ventas' },
-      { label: 'Compras', to: '/compras' },
-      { label: 'Salidas', to: '/salidas' },
-      { label: 'Incentivo', to: '/incentivos' },
+      { label: 'Laboratorios', to: '/laboratorios', resourceKey: 'laboratorios' },
+      { label: 'Genericos', to: '/genericos', resourceKey: 'genericos' },
+      { label: 'Productos', to: '/productos', resourceKey: 'productos' },
+      { label: 'Proveedores', to: '/proveedores', resourceKey: 'proveedores' },
+      { label: 'Ventas', to: '/ventas', resourceKey: 'ventas' },
+      { label: 'Compras', to: '/compras', resourceKey: 'compras' },
+      { label: 'Salidas', to: '/salidas', resourceKey: 'salidas' },
+      { label: 'Incentivo', to: '/incentivos', resourceKey: 'incentivos' },
     ],
   },
   {
@@ -34,39 +36,40 @@ const menu: SidebarMenuItem[] = [
   {
     label: 'Usuarios',
     children: [
-      { label: 'Crear Usuarios', to: '/usuarios' },
+      { label: 'Crear Usuarios', to: '/usuarios', resourceKey: 'usuarios' },
+      { label: 'Roles', to: '/roles', resourceKey: 'roles' },
       { label: 'Mi Perfil', to: '/perfil' },
     ],
   },
   {
     label: 'Digemid',
     children: [
-      { label: 'Envio de Precios', to: 'http://opmcarga.digemid.minsa.gob.pe/Default.aspx', external: true },
-      { label: 'Alertas', to: 'http://www.digemid.minsa.gob.pe/Main.asp?Seccion=371', external: true },
-      { label: 'Codigos', to: '/digemid' },
+      { label: 'Envio de Precios', to: 'http://opmcarga.digemid.minsa.gob.pe/Default.aspx', external: true, resourceKey: 'digemid_codigos' },
+      { label: 'Alertas', to: 'http://www.digemid.minsa.gob.pe/Main.asp?Seccion=371', external: true, resourceKey: 'digemid_codigos' },
+      { label: 'Codigos', to: '/digemid', resourceKey: 'digemid_codigos' },
     ],
   },
   {
     label: 'Reportes',
     children: [
-      { label: 'Cargos/Descargos', to: '/cargos' },
-      { label: 'Prox. a Vencer', to: '/reportes' },
-      { label: 'Compras por proveedor', to: '/reportes' },
-      { label: 'Ventas', to: '/reportes' },
-      { label: 'Resumen Por Mes', to: '/reportes' },
-      { label: 'Pedidos', to: '/pedidos' },
-      { label: 'Inventario', to: '/reportes' },
-      { label: 'Incentivos', to: '/reportes' },
-      { label: 'Cuadre de caja', to: '/caja' },
+      { label: 'Cargos/Descargos', to: '/cargos', resourceKey: 'cargos' },
+      { label: 'Prox. a Vencer', to: '/reportes', resourceKey: 'reportes' },
+      { label: 'Compras por proveedor', to: '/reportes', resourceKey: 'reportes' },
+      { label: 'Ventas', to: '/reportes', resourceKey: 'reportes' },
+      { label: 'Resumen Por Mes', to: '/reportes', resourceKey: 'reportes' },
+      { label: 'Pedidos', to: '/pedidos', resourceKey: 'pedidos' },
+      { label: 'Inventario', to: '/reportes', resourceKey: 'reportes' },
+      { label: 'Incentivos', to: '/reportes', resourceKey: 'reportes' },
+      { label: 'Cuadre de caja', to: '/caja', resourceKey: 'caja' },
     ],
   },
 ]
 
 export default function Sidebar() {
   const location = useLocation()
-  const rol = useAuthStore((s) => s.rol)
   const nombre = useAuthStore((s) => s.nombre)
   const logout = useAuthStore((s) => s.logout)
+  const recursos = useAuthStore((s) => s.recursos)
   const [collapsed, setCollapsed] = useState<{ [key: string]: boolean }>({
     Mantenimientos: false,
     Recargas: true,
@@ -78,16 +81,17 @@ export default function Sidebar() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const isResizing = React.useRef(false)
 
-  // Mouse events for resizing
   React.useEffect(() => {
     function onMouseMove(e: MouseEvent) {
       if (isResizing.current) {
         setSidebarWidth(Math.max(180, Math.min(e.clientX, 400)))
       }
     }
+
     function onMouseUp() {
       isResizing.current = false
     }
+
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
     return () => {
@@ -96,19 +100,15 @@ export default function Sidebar() {
     }
   }, [])
 
-  // Filtro de items admin
-  function isAdminItem(label: string) {
-    return [
-      'Crear Usuarios',
-      'Cargos/Descargos',
-      'Prox. a Vencer',
-      'Compras por proveedor',
-      'Ventas',
-      'Resumen Por Mes',
-      'Inventario',
-      'Cuadre de caja',
-    ].includes(label)
-  }
+  const visibleSections = useMemo(
+    () => menu
+      .map((section) => ({
+        ...section,
+        children: section.children?.filter((item) => hasResource(recursos, item.resourceKey)) ?? [],
+      }))
+      .filter((section) => (section.children?.length ?? 0) > 0),
+    [recursos]
+  )
 
   function salir() {
     logout()
@@ -123,10 +123,10 @@ export default function Sidebar() {
       >
         <button
           className="mt-2 mb-2 p-1 rounded hover:bg-slate-100"
-          title="Expandir menú"
+          title="Expandir menu"
           onClick={() => setSidebarCollapsed(false)}
         >
-          <span className="text-xl">»</span>
+          <span className="text-xl">&gt;&gt;</span>
         </button>
       </aside>
     )
@@ -144,19 +144,19 @@ export default function Sidebar() {
       />
       <button
         className="absolute -right-4 top-4 bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-slate-300 z-50"
-        title="Contraer menú"
+        title="Contraer menu"
         onClick={() => setSidebarCollapsed(true)}
         style={{ border: '1px solid #e2e8f0' }}
       >
-        <span className="text-xl">«</span>
+        <span className="text-xl">&lt;&lt;</span>
       </button>
       <nav className="flex-1">
         <ul className="space-y-2">
-          {menu.map((section) => (
+          {visibleSections.map((section) => (
             <li key={section.label}>
               <button
                 className="w-full flex justify-between items-center font-bold text-slate-700 mb-1 mt-4 px-1 py-1 hover:bg-slate-100 rounded"
-                onClick={() => setCollapsed((c) => ({ ...c, [section.label]: !c[section.label] }))}
+                onClick={() => setCollapsed((current) => ({ ...current, [section.label]: !current[section.label] }))}
                 aria-expanded={!collapsed[section.label]}
               >
                 <span>{section.label}</span>
@@ -164,9 +164,8 @@ export default function Sidebar() {
               </button>
               {!collapsed[section.label] && (
                 <ul className="space-y-1">
-                  {section.children?.map((item) => {
-                    if (isAdminItem(item.label) && rol !== 'ADMIN') return null
-                    return item.external ? (
+                  {section.children?.map((item) => (
+                    item.external ? (
                       <li key={item.label}>
                         <a
                           href={item.to}
@@ -191,7 +190,7 @@ export default function Sidebar() {
                         </Link>
                       </li>
                     )
-                  })}
+                  ))}
                 </ul>
               )}
             </li>
@@ -204,7 +203,7 @@ export default function Sidebar() {
           className="w-full px-3 py-2 rounded bg-red-50 text-red-700 hover:bg-red-100 text-sm font-semibold"
           onClick={salir}
         >
-          Cerrar sesión
+          Cerrar sesion
         </button>
       </div>
     </aside>
