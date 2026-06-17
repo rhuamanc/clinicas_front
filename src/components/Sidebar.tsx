@@ -33,6 +33,27 @@ const menu: SidebarMenuItem[] = [
       { label: 'Nextel/Entel', to: 'https://entel.pe', external: true },
     ],
   },
+    {
+      label: 'Clinica',
+      children: [
+        { label: 'Centro Clinico', to: '/clinica', resourceKey: 'pacientes' },
+        { label: 'Pacientes', to: '/clinica/pacientes', resourceKey: 'pacientes' },
+        { label: 'Medicos', to: '/clinica/medicos', resourceKey: 'medicos' },
+        { label: 'Especialidades', to: '/clinica/especialidades', resourceKey: 'especialidades' },
+        { label: 'Citas', to: '/clinica/citas', resourceKey: 'citas' },
+        { label: 'Admision', to: '/clinica/admision', resourceKey: 'admision' },
+        { label: 'Triaje', to: '/clinica/triaje', resourceKey: 'triaje' },
+        { label: 'Consulta Medica', to: '/clinica/consulta', resourceKey: 'consulta_medica' },
+        { label: 'Diagnosticos', to: '/clinica/consulta', resourceKey: 'diagnosticos' },
+        { label: 'Recetas Medicas', to: '/clinica/consulta', resourceKey: 'recetas_medicas' },
+        { label: 'Farmacia Integrada', to: '/clinica/farmacia', resourceKey: 'farmacia_integrada' },
+        { label: 'Laboratorio', to: '/clinica/laboratorio', resourceKey: 'laboratorio_clinico' },
+        { label: 'Procedimientos', to: '/clinica/procedimientos', resourceKey: 'procedimientos' },
+        { label: 'Historia Clinica', to: '/clinica/historia', resourceKey: 'historia_clinica' },
+        { label: 'Reportes Clinicos', to: '/clinica/reportes', resourceKey: 'reportes' },
+        { label: 'Configuracion', to: '/clinica', resourceKey: 'configuracion' },
+      ],
+    },
   {
     label: 'Usuarios',
     children: [
@@ -75,6 +96,7 @@ export default function Sidebar() {
     Recargas: true,
     Usuarios: true,
     Digemid: true,
+      Clinica: false,
     Reportes: true,
   })
   const [sidebarWidth, setSidebarWidth] = useState(256)

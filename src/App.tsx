@@ -18,6 +18,19 @@ import PedidosPage from '@/pages/PedidosPage'
 import GenericosPage from '@/pages/GenericosPage'
 import DigemidPage from '@/pages/DigemidPage'
 import CajaPage from '@/pages/CajaPage'
+import ClinicaPage from '@/pages/ClinicaPage'
+import PacientesPage from '@/pages/PacientesPage'
+import MedicosPage from '@/pages/MedicosPage'
+import EspecialidadesPage from '@/pages/EspecialidadesPage'
+import CitasPage from '@/pages/CitasPage'
+import AdmisionPage from '@/pages/AdmisionPage'
+import TriajePage from '@/pages/TriajePage'
+import ConsultaMedicaPage from '@/pages/ConsultaMedicaPage'
+import FarmaciaIntegradaPage from '@/pages/FarmaciaIntegradaPage'
+import LaboratorioClinicoPage from '@/pages/LaboratorioClinicoPage'
+import ProcedimientosPage from '@/pages/ProcedimientosPage'
+import HistoriaClinicaPage from '@/pages/HistoriaClinicaPage'
+import ReportesClinicosPage from '@/pages/ReportesClinicosPage'
 import AppShell from '@/components/AppShell'
 import Toaster from '@/components/ui/toaster'
 
@@ -45,6 +58,19 @@ export default function App() {
             <Route path="/genericos" element={<RequireResource resourceKey="genericos"><GenericosPage /></RequireResource>} />
             <Route path="/digemid" element={<RequireResource resourceKey="digemid_codigos"><DigemidPage /></RequireResource>} />
             <Route path="/caja" element={<RequireResource resourceKey="caja"><CajaPage /></RequireResource>} />
+            <Route path="/clinica" element={<RequireResource resourceKey="pacientes"><ClinicaPage /></RequireResource>} />
+            <Route path="/clinica/pacientes" element={<RequireResource resourceKey="pacientes"><PacientesPage /></RequireResource>} />
+            <Route path="/clinica/medicos" element={<RequireResource resourceKey="medicos"><MedicosPage /></RequireResource>} />
+            <Route path="/clinica/especialidades" element={<RequireResource resourceKey="especialidades"><EspecialidadesPage /></RequireResource>} />
+            <Route path="/clinica/citas" element={<RequireResource resourceKey="citas"><CitasPage /></RequireResource>} />
+            <Route path="/clinica/admision" element={<RequireResource resourceKey="admision"><AdmisionPage /></RequireResource>} />
+            <Route path="/clinica/triaje" element={<RequireResource resourceKey="triaje"><TriajePage /></RequireResource>} />
+            <Route path="/clinica/consulta" element={<RequireResource resourceKey="consulta_medica"><ConsultaMedicaPage /></RequireResource>} />
+            <Route path="/clinica/farmacia" element={<RequireResource resourceKey="farmacia_integrada"><FarmaciaIntegradaPage /></RequireResource>} />
+            <Route path="/clinica/laboratorio" element={<RequireResource resourceKey="laboratorio_clinico"><LaboratorioClinicoPage /></RequireResource>} />
+            <Route path="/clinica/procedimientos" element={<RequireResource resourceKey="procedimientos"><ProcedimientosPage /></RequireResource>} />
+            <Route path="/clinica/historia" element={<RequireResource resourceKey="historia_clinica"><HistoriaClinicaPage /></RequireResource>} />
+            <Route path="/clinica/reportes" element={<RequireResource resourceKey="reportes"><ReportesClinicosPage /></RequireResource>} />
           </Route>
         </Route>
 

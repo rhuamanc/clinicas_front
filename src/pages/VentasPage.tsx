@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { listarProductos, crearVenta } from '@/api/ventasApi'
+import { listarPacientes, listarRecetasPendientes, marcarRecetaDispensadaDesdeVenta, obtenerDetalleRecetaPendiente } from '@/api/clinicaApi'
 import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/ui/button'
 import { FieldError, OptionalLabel, RequiredLabel, fieldClass, isBlank } from '@/components/ui/form-feedback'
@@ -19,6 +20,10 @@ export default function VentasPage() {
   const [documentoNumero, setDocumentoNumero] = useState('')
   const [documentoNombre, setDocumentoNombre] = useState('')
   const [montoCobrado, setMontoCobrado] = useState(0)
+  const [pacienteBusqueda, setPacienteBusqueda] = useState('')
+  const [idPacienteSeleccionado, setIdPacienteSeleccionado] = useState<number | ''>('')
+  const [cargandoReceta, setCargandoReceta] = useState(false)
+  const [idRecetaCargada, setIdRecetaCargada] = useState<number | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const { data: productos = [], isLoading } = useQuery({
@@ -27,11 +32,32 @@ export default function VentasPage() {
     refetchOnWindowFocus: true,
   })
 
+  const { data: pacientes = [], isLoading: cargandoPacientes } = useQuery({
+    queryKey: ['clinica', 'pacientes', pacienteBusqueda],
+    queryFn: () => listarPacientes(pacienteBusqueda.trim() || undefined),
+    enabled: pacienteBusqueda.trim().length >= 2,
+  })
+
+  const { data: recetasPendientesPaciente = [], isLoading: cargandoRecetasPaciente } = useQuery({
+    queryKey: ['clinica', 'recetas-pendientes', idPacienteSeleccionado],
+    queryFn: () => listarRecetasPendientes(typeof idPacienteSeleccionado === 'number' ? idPacienteSeleccionado : undefined),
+    enabled: typeof idPacienteSeleccionado === 'number',
+  })
+
   const mutation = useMutation({
     mutationFn: crearVenta,
-    onSuccess: () => {
+    onSuccess: async (venta) => {
+      if (idRecetaCargada) {
+        try {
+          await marcarRecetaDispensadaDesdeVenta(idRecetaCargada, venta.idVenta)
+        } catch (error) {
+          notifyError(getApiErrorMessage(error, 'La venta se guardo, pero no se pudo marcar la receta como dispensada.'))
+        }
+      }
       setDetalle([])
+      setIdRecetaCargada(null)
       queryClient.invalidateQueries({ queryKey: ['productos', idZona] })
+      queryClient.invalidateQueries({ queryKey: ['clinica', 'recetas-pendientes'] })
       notifySuccess('Venta guardada correctamente.')
     },
     onError: (error) => notifyError(getApiErrorMessage(error, 'No se pudo guardar la venta.')),
@@ -107,8 +133,127 @@ export default function VentasPage() {
     })
   }
 
+  async function cargarRecetaEnVenta(idReceta: number) {
+    setCargandoReceta(true)
+    try {
+      const receta = await obtenerDetalleRecetaPendiente(idReceta)
+      const itemsConProducto = receta.detalles.filter((d) => d.idProducto)
+      const itemsSinProducto = receta.detalles.length - itemsConProducto.length
+
+      if (itemsConProducto.length === 0) {
+        notifyError('La receta no tiene productos vinculados para farmacia.')
+        return
+      }
+
+      setDetalle((prev) => {
+        const acumulado = new Map(prev.map((d) => [d.idProducto, { ...d }]))
+
+        for (const item of itemsConProducto) {
+          const idProducto = item.idProducto as number
+          const existente = acumulado.get(idProducto)
+          const precio = Number(item.precioUnitario || 0)
+          const cantidad = Number(item.cantidad || 0)
+
+          if (existente) {
+            const nuevaCantidad = existente.cantidad + cantidad
+            acumulado.set(idProducto, {
+              ...existente,
+              cantidad: nuevaCantidad,
+              subtotal: Number((nuevaCantidad * existente.precioUnitario).toFixed(2)),
+            })
+          } else {
+            acumulado.set(idProducto, {
+              idProducto,
+              nombreProducto: item.nombreProducto,
+              cantidad,
+              precioUnitario: precio,
+              subtotal: Number((cantidad * precio).toFixed(2)),
+            })
+          }
+        }
+
+        return Array.from(acumulado.values())
+      })
+
+      setDocumentoNombre(`${receta.paciente.apellidos}, ${receta.paciente.nombres}`)
+      setIdRecetaCargada(idReceta)
+      if (itemsSinProducto > 0) {
+        notifySuccess(`Receta ${idReceta} cargada parcialmente. ${itemsSinProducto} item(s) sin producto vinculado.`)
+      } else {
+        notifySuccess(`Receta ${idReceta} cargada en la venta.`)
+      }
+    } catch (error) {
+      notifyError(getApiErrorMessage(error, 'No se pudo cargar la receta del paciente.'))
+    } finally {
+      setCargandoReceta(false)
+    }
+  }
+
   return (
     <main className="p-6 space-y-6">
+
+      <section className="rounded-md border bg-white p-4 space-y-3">
+        <h2 className="text-lg font-semibold text-slate-900">Jalar receta por paciente</h2>
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="space-y-1">
+            <OptionalLabel>Buscar paciente (nombre o apellido)</OptionalLabel>
+            <Input
+              placeholder="Escribe al menos 2 letras"
+              value={pacienteBusqueda}
+              onChange={(e) => {
+                setPacienteBusqueda(e.target.value)
+                setIdPacienteSeleccionado('')
+              }}
+            />
+          </div>
+          <div className="space-y-1 md:col-span-2">
+            <RequiredLabel>Paciente</RequiredLabel>
+            <select
+              className="h-10 rounded-md border border-input bg-background px-3 w-full"
+              value={idPacienteSeleccionado}
+              onChange={(e) => setIdPacienteSeleccionado(e.target.value ? Number(e.target.value) : '')}
+            >
+              <option value="">Selecciona un paciente</option>
+              {pacientes.map((p) => (
+                <option key={p.idPaciente} value={p.idPaciente}>
+                  {p.apellidos}, {p.nombres} ({p.dni})
+                </option>
+              ))}
+            </select>
+            {cargandoPacientes && <p className="text-xs text-muted-foreground">Buscando pacientes...</p>}
+          </div>
+        </div>
+
+        {typeof idPacienteSeleccionado === 'number' && (
+          <div className="rounded-md border">
+            <div className="px-3 py-2 border-b text-sm font-medium">Recetas pendientes del paciente</div>
+            {cargandoRecetasPaciente ? (
+              <p className="p-3 text-sm text-muted-foreground">Cargando recetas...</p>
+            ) : recetasPendientesPaciente.length === 0 ? (
+              <p className="p-3 text-sm text-muted-foreground">No hay recetas pendientes para este paciente.</p>
+            ) : (
+              <div className="divide-y">
+                {recetasPendientesPaciente.map((receta) => (
+                  <div key={receta.idReceta} className="p-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">Receta #{receta.idReceta}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(receta.fechaReceta).toLocaleString()}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={cargandoReceta}
+                      onClick={() => cargarRecetaEnVenta(receta.idReceta)}
+                    >
+                      {cargandoReceta ? 'Cargando...' : 'Cargar en venta'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
 
       <section className="rounded-md border bg-white p-4 grid gap-4 md:grid-cols-3 xl:grid-cols-6">

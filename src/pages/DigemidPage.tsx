@@ -18,7 +18,7 @@ async function descargarZipDigemid(idZona: number) {
     document.body.appendChild(link)
     link.click()
     link.remove()
-  } catch (err) {
+  } catch {
     alert('Error al descargar ZIP')
   }
 }
@@ -83,8 +83,8 @@ export default function DigemidPage() {
         <Input placeholder="Buscar por nombre" value={q} onChange={(e) => setQ(e.target.value)} />
         <Button onClick={() => setFiltro(q.trim())}>Buscar</Button>
         <Button variant="outline" onClick={() => syncMutation.mutate()}>Sincronizar</Button>
-        <Button variant="secondary" onClick={() => descargarZipDigemid(idZona)}>Descargar ZIP (CSV)</Button>
-        <Button variant="secondary" onClick={exportarExcel}>Exportar a Excel</Button>
+        <Button variant="outline" onClick={() => descargarZipDigemid(idZona)}>Descargar ZIP (CSV)</Button>
+        <Button variant="outline" onClick={exportarExcel}>Exportar a Excel</Button>
       </section>
 
       {syncMutation.isSuccess ? <p className="text-sm text-emerald-600">{syncMutation.data?.mensaje}</p> : null}
@@ -110,7 +110,7 @@ export default function DigemidPage() {
                     className="border rounded px-2 py-1 w-32"
                     value={editRow[r.idProducto] ?? r.codigoDigemid ?? ''}
                     onChange={e => setEditRow({ ...editRow, [r.idProducto]: e.target.value })}
-                    onBlur={e => {
+                    onBlur={() => {
                       if ((r.codigoDigemid ?? '') !== (editRow[r.idProducto] ?? '')) {
                         updateCodigoMutation.mutate({ idProducto: r.idProducto, codigoDigemid: editRow[r.idProducto] ?? '' })
                       }

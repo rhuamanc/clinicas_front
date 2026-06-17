@@ -339,6 +339,7 @@ export interface DigemidRow {
   nombreProducto: string
   presentacion?: string
   laboratorio?: string
+  codigoDigemid?: string
 }
 
 // â”€â”€â”€ Venta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
