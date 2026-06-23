@@ -48,6 +48,7 @@ const menu: SidebarMenuItem[] = [
         { label: 'Recetas Medicas', to: '/clinica/consulta', resourceKey: 'recetas_medicas' },
         { label: 'Farmacia Integrada', to: '/clinica/farmacia', resourceKey: 'farmacia_integrada' },
         { label: 'Laboratorio', to: '/clinica/laboratorio', resourceKey: 'laboratorio_clinico' },
+        { label: 'Examenes de Laboratorio', to: '/clinica/examenes-laboratorio', resourceKey: 'laboratorio_clinico' },
         { label: 'Procedimientos', to: '/clinica/procedimientos', resourceKey: 'procedimientos' },
         { label: 'Historia Clinica', to: '/clinica/historia', resourceKey: 'historia_clinica' },
         { label: 'Reportes Clinicos', to: '/clinica/reportes', resourceKey: 'reportes' },

@@ -219,16 +219,63 @@ export interface RecetaPendienteDetalle {
 export interface LaboratorioOrden {
   idOrdenLaboratorio: number
   examen: string
+  precioExamen?: number
   estado: string
   fechaOrden: string
   fechaEntrega?: string
   observaciones?: string
+  examenCatalogo?: ExamenLaboratorio
   atencion: Atencion
 }
 
 export interface LaboratorioOrdenPayload {
-  examen: string
+  examen?: string
+  idExamen?: number
   observaciones?: string
+}
+
+export interface ExamenLaboratorio {
+  idExamen: number
+  codigo: string
+  nombre: string
+  descripcion?: string
+  areaLaboratorio: string
+  precio: number
+  tiempoEntrega: string
+  requiereAyuno: boolean
+  requiereMuestraEspecial: boolean
+  indicacionesPaciente?: string
+  activo: boolean
+  fechaRegistro: string
+}
+
+export interface ExamenLaboratorioPayload {
+  codigo: string
+  nombre: string
+  descripcion?: string
+  areaLaboratorio: string
+  precio: number
+  tiempoEntrega: string
+  requiereAyuno?: boolean
+  requiereMuestraEspecial?: boolean
+  indicacionesPaciente?: string
+  activo?: boolean
+}
+
+export interface ExamenLaboratorioPage {
+  content: ExamenLaboratorio[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}
+
+export interface AtencionResumen {
+  atencion: Atencion
+  triaje: Triaje | null
+  ordenesLaboratorio: LaboratorioOrden[]
 }
 
 export interface LaboratorioResultado {
@@ -352,6 +399,11 @@ export async function listarAtenciones(idPaciente?: number) {
   return data
 }
 
+export async function obtenerResumenAtencion(idAtencion: number) {
+  const { data } = await api.get<AtencionResumen>(`/clinica/atenciones/${idAtencion}/resumen`)
+  return data
+}
+
 export async function iniciarAtencion(payload: AtencionPayload) {
   const { data } = await api.post<Atencion>('/clinica/atenciones', payload)
   return data
@@ -398,6 +450,42 @@ export async function marcarRecetaDispensadaDesdeVenta(idReceta: number, idVenta
 
 export async function crearOrdenLaboratorio(idAtencion: number, payload: LaboratorioOrdenPayload) {
   const { data } = await api.post<LaboratorioOrden>(`/clinica/atenciones/${idAtencion}/laboratorio-ordenes`, payload)
+  return data
+}
+
+export async function listarExamenesLaboratorio(params?: {
+  activo?: boolean
+  area?: string
+  q?: string
+  page?: number
+  size?: number
+}) {
+  const { data } = await api.get<ExamenLaboratorioPage>('/clinica/examenes-laboratorio', { params })
+  return data
+}
+
+export async function obtenerExamenLaboratorio(idExamen: number) {
+  const { data } = await api.get<ExamenLaboratorio>(`/clinica/examenes-laboratorio/${idExamen}`)
+  return data
+}
+
+export async function crearExamenLaboratorio(payload: ExamenLaboratorioPayload) {
+  const { data } = await api.post<ExamenLaboratorio>('/clinica/examenes-laboratorio', payload)
+  return data
+}
+
+export async function actualizarExamenLaboratorio(idExamen: number, payload: ExamenLaboratorioPayload) {
+  const { data } = await api.put<ExamenLaboratorio>(`/clinica/examenes-laboratorio/${idExamen}`, payload)
+  return data
+}
+
+export async function activarExamenLaboratorio(idExamen: number) {
+  const { data } = await api.put<ExamenLaboratorio>(`/clinica/examenes-laboratorio/${idExamen}/activar`)
+  return data
+}
+
+export async function inactivarExamenLaboratorio(idExamen: number) {
+  const { data } = await api.put<ExamenLaboratorio>(`/clinica/examenes-laboratorio/${idExamen}/inactivar`)
   return data
 }
 

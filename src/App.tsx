@@ -28,6 +28,7 @@ import TriajePage from '@/pages/TriajePage'
 import ConsultaMedicaPage from '@/pages/ConsultaMedicaPage'
 import FarmaciaIntegradaPage from '@/pages/FarmaciaIntegradaPage'
 import LaboratorioClinicoPage from '@/pages/LaboratorioClinicoPage'
+import ExamenesLaboratorioPage from '@/pages/ExamenesLaboratorioPage'
 import ProcedimientosPage from '@/pages/ProcedimientosPage'
 import HistoriaClinicaPage from '@/pages/HistoriaClinicaPage'
 import ReportesClinicosPage from '@/pages/ReportesClinicosPage'
@@ -68,6 +69,7 @@ export default function App() {
             <Route path="/clinica/consulta" element={<RequireResource resourceKey="consulta_medica"><ConsultaMedicaPage /></RequireResource>} />
             <Route path="/clinica/farmacia" element={<RequireResource resourceKey="farmacia_integrada"><FarmaciaIntegradaPage /></RequireResource>} />
             <Route path="/clinica/laboratorio" element={<RequireResource resourceKey="laboratorio_clinico"><LaboratorioClinicoPage /></RequireResource>} />
+            <Route path="/clinica/examenes-laboratorio" element={<RequireResource resourceKey="laboratorio_clinico"><ExamenesLaboratorioPage /></RequireResource>} />
             <Route path="/clinica/procedimientos" element={<RequireResource resourceKey="procedimientos"><ProcedimientosPage /></RequireResource>} />
             <Route path="/clinica/historia" element={<RequireResource resourceKey="historia_clinica"><HistoriaClinicaPage /></RequireResource>} />
             <Route path="/clinica/reportes" element={<RequireResource resourceKey="reportes"><ReportesClinicosPage /></RequireResource>} />
